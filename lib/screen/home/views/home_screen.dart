@@ -1,7 +1,9 @@
+import 'package:cart_repository/cart_repository.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pizzadelivery/screen/auth/blocs/sign_in_bloc/bloc/sign_in_bloc.dart';
+import 'package:pizzadelivery/screen/cart/blocs/bloc/cart_bloc.dart';
 import 'package:pizzadelivery/screen/cart/views/cart_page.dart';
 import 'package:pizzadelivery/screen/home/blocs/get_pizza/get_pizza_bloc.dart';
 import 'package:pizzadelivery/screen/home/views/details_screen.dart';
@@ -41,9 +43,16 @@ class HomeScreen extends StatelessWidget {
           actions: [
             IconButton(
               onPressed: () {
-                Navigator.push(context, MaterialPageRoute(
-                  builder: (context) => const CartPage(),
-                ));
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BlocProvider(
+                        create: (context) => CartBloc(
+                          FirebaseCartRepo()
+                        ),
+                        child: const CartPage(),
+                      ),
+                    ));
               },
               icon: const Icon(
                 CupertinoIcons.cart,
@@ -67,12 +76,12 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         body: BlocBuilder<GetPizzaBloc, GetPizzaState>(
-          builder: (context, state){
-
+          builder: (context, state) {
             // success state
             if (state is GetPizzaSuccess) {
               return Padding(
-                padding: const EdgeInsets.only(left: 12.0, right: 12.0, top: 5.0),
+                padding:
+                    const EdgeInsets.only(left: 12.0, right: 12.0, top: 5.0),
                 child: GridView.builder(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2, // Number of columns
@@ -108,8 +117,8 @@ class HomeScreen extends StatelessWidget {
 
                               // Product details
                               Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 11.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 11.0),
                                 child: Row(
                                   children: [
                                     // Veg/Non-Veg Indicator
@@ -149,9 +158,14 @@ class HomeScreen extends StatelessWidget {
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 8.0, vertical: 4.0),
                                         child: Text(
-                                          state.pizzas[index].spicy == 1 ? "🌶️ NORMAL" : 
-                                          state.pizzas[index].spicy == 2 ? "🌶️ MILD" : 
-                                          state.pizzas[index].spicy == 3 ? "🌶️ SPICY" : "",
+                                          state.pizzas[index].spicy == 1
+                                              ? "🌶️ NORMAL"
+                                              : state.pizzas[index].spicy == 2
+                                                  ? "🌶️ MILD"
+                                                  : state.pizzas[index].spicy ==
+                                                          3
+                                                      ? "🌶️ SPICY"
+                                                      : "",
                                           style: const TextStyle(
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
@@ -169,7 +183,8 @@ class HomeScreen extends StatelessWidget {
 
                               // Product Name
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 11.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 11.0),
                                 child: Text(
                                   "${state.pizzas[index].name} ",
                                   style: const TextStyle(
@@ -227,7 +242,8 @@ class HomeScreen extends StatelessWidget {
                                         "\$${state.pizzas[index].discount}",
                                         style: const TextStyle(
                                           color: Colors.grey,
-                                          decoration: TextDecoration.lineThrough,
+                                          decoration:
+                                              TextDecoration.lineThrough,
                                           fontSize: 12,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -235,12 +251,23 @@ class HomeScreen extends StatelessWidget {
                                     ]),
                                     IconButton(
                                         onPressed: () {
-                                          // add to cart action
-                                 
+                                          // add to cart 
+                                          context.read<CartBloc>().add(
+                                              AddToCart(
+                                                item: CartItem(
+                                                  pizzaId: state.pizzas[index].pizzaId,
+                                                  name: state.pizzas[index].name,
+                                                  price: state.pizzas[index].price,
+                                                  image: state.pizzas[index].picture,
+                                                  spicyLabel: state.pizzas[index].spicy,
+                                                  isVeg: state.pizzas[index].isVeg, 
+                                                  discount: state.pizzas[index].discount,
+                                                  quantity: 1,
+                                              ))
+                                          );
                                         },
                                         icon: const Icon(
-                                            CupertinoIcons.add_circled_solid)
-                                    ),
+                                            CupertinoIcons.add_circled_solid)),
                                   ],
                                 ),
                               )
@@ -252,7 +279,7 @@ class HomeScreen extends StatelessWidget {
               );
             }
 
-            // empty pizza state 
+            // empty pizza state
             else if (state is GetPizzaFailure) {
               return const Center(
                 child: Text("Failed to load pizzas"),
@@ -260,14 +287,12 @@ class HomeScreen extends StatelessWidget {
             }
 
             // loading state
-            else { 
+            else {
               return const Center(
                 child: Text("Failed to load pizzas"),
               );
             }
-
           },
-
         ));
   }
 }

@@ -1,9 +1,11 @@
+import 'package:cart_repository/cart_repository.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:pizza_repository/pizza_repository.dart';
 import 'package:pizzadelivery/blocs/authentication_bloc/authentication_bloc.dart';
 import 'package:pizzadelivery/screen/auth/blocs/sign_in_bloc/bloc/sign_in_bloc.dart';
 import 'package:pizzadelivery/screen/auth/views/welcome_screen.dart';
+import 'package:pizzadelivery/screen/cart/blocs/bloc/cart_bloc.dart';
 import 'package:pizzadelivery/screen/home/blocs/get_pizza/get_pizza_bloc.dart';
 import 'package:pizzadelivery/screen/home/views/home_screen.dart';
 
@@ -44,6 +46,13 @@ class MyAppView extends StatelessWidget {
                   create: (context) => GetPizzaBloc(
                     FirebasePizzaRepo(),
                   )..add(GetPizza()),
+                  // add() sends an event to the bloc
+                ),
+
+                BlocProvider<CartBloc>(
+                  create: (context) => CartBloc(
+                    FirebaseCartRepo(),
+                  ),
                   // add() sends an event to the bloc
                 ),
               ],
